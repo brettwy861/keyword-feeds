@@ -15,15 +15,14 @@ from xml.sax.saxutils import unescape
 def date_convert_timezone(date_input):
     date_split = re.split('\s+', date_input)
     week, day, month, year, time = date_split[0:5]
+    if year[0:3] != '201':
+        year = '2018'
     time = time.split(':')
     if len(time) == 2:
         hour, minute = time[0:2]
         second = '00'
     else:
         hour, minute, second = time[0:3]
-    if year[0:3] != '201':
-        year = '2018'
-
     pubdate_convert = week + ' ' + day + ' ' + month + ' ' + year + ' ' + hour + ':' + minute + ':' + second + ' ' + '+0000'
     return pubdate_convert
 
@@ -39,7 +38,7 @@ def compareDate(t1,t2): #get earlier time
     return result
 
 def rssfeed_generator(jsonfilename_for_converting, customize_feedname, feeds_link, rss_description):#translate json to XML for rss
-    with open(jsonfilename_for_converting, 'r') as f:                                #require vaiable: exsiting exist
+    with open(jsonfilename_for_converting, 'r') as f: #require vaiable: exsiting exist
         existing20 = json.load(f)
         f.close()
 
@@ -56,8 +55,11 @@ def rssfeed_generator(jsonfilename_for_converting, customize_feedname, feeds_lin
         ET.SubElement(item_xml, "pubDate").text = feeds['pubDate']
         ET.SubElement(item_xml, "link").text = feeds['link']
         ET.SubElement(item_xml, "guid", isPermaLink="false").text = feeds['guid']
-        ET.SubElement(item_xml, "description").text = '<![CDATA[ ' + feeds['description'] + ' ]]>'
-
+        if feeds['description'] == None:
+            ET.SubElement(item_xml, "description").text = '<![CDATA[ ' ' ]]>'
+        else:
+            ET.SubElement(item_xml, "description").text = '<![CDATA[ ' + feeds['description'] + ' ]]>'
+            
     rss_xml1= ElementTree.tostring(rss_xml, encoding='utf8', method='xml')
     rss_xml2 = rss_xml1.decode()
     rss_xml3 = unescape(rss_xml2)
@@ -73,9 +75,9 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 while True:
     print('wait for 300s')
-    #time.sleep(300)
+    time.sleep(300)
     sum_feeds = []
-    newsfeed_vyrde = []
+    #newsfeed = []
     script_list = []
     #(1) collecting urls, putting them into script_list.
     script_list = re.findall('(http.*?)\\\n', (retrive_url('/PATH/TO/sources-index.txt')).decode('utf-8'))
