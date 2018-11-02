@@ -38,9 +38,8 @@ def compareDate(t1,t2): #get earlier time
     return result
 
 def rssfeed_generator(jsonfilename_for_converting, customize_feedname, feeds_link, rss_description):#translate json to XML for rss
-    with open(jsonfilename_for_converting, 'r') as f: #require vaiable: exsiting exist
+    with open(os.path.join('/var/www/html/',jsonfilename_for_converting), 'r') as f: #require vaiable: exsiting exist
         existing20 = json.load(f)
-        f.close()
 
     rss_xml = ET.Element('rss', version="2.0")
     channel_xml = ET.SubElement(rss_xml, 'channel')
@@ -75,7 +74,7 @@ ssl._create_default_https_context = ssl._create_unverified_context
 
 while True:
     print('wait for 300s')
-    time.sleep(300)
+    time.sleep(1)
     sum_feeds = []
     #newsfeed = []
     script_list = []
@@ -118,10 +117,9 @@ while True:
                     sum_feeds.append(json_sub)
 
     #(3) generate unduplicate feeds dictionary of list (dic)
-    if 'allfeeds.json' in os.listdir(os.curdir):
-        with open('allfeeds.json','r') as f1:
+    if 'allfeeds.json' in os.listdir('/var/www/html/'):
+        with open(os.path.join('/var/www/html/','allfeeds.json'),'r') as f1:
             dic = json.load(f1)
-            f1.close()
     else:
         dic = {}
     for item in sum_feeds:
@@ -134,14 +132,12 @@ while True:
             elif compareDate(t1,t2) =='update original source':
                 dic[item.get('Title')]=item
 
-    with open('allfeeds.json', 'w') as file2: # write and cover allfeeds.json with var: dic
+    with open(os.path.join('/var/www/html/','allfeeds.json'), 'w') as file2: # write and cover allfeeds.json with var: dic
         json.dump(dic, file2, indent=2)
-        file2.close()
 
-    if 'target_feed.json' in os.listdir(os.curdir):
-        with open('target_feed.json','r') as f:
+    if 'target_feed.json' in os.listdir('/var/www/html/'):
+        with open(os.path.join('/var/www/html/','target_feed.json'),'r') as f:
             existing = json.load(f)
-            f.close()
     else:
         existing = []
 
@@ -172,15 +168,13 @@ while True:
 
         existing = sorted(existing, key=lambda x: datetime.strptime(x['pubDate'], '%a, %d %b %Y %H:%M:%S %z'),reverse=True)
 
-    with open('target_feed.json', 'w') as file3:
+    with open(os.path.join('/var/www/html/','target_feed.json'), 'w') as file3:
         json.dump(existing, file3, indent=2)
-        file3.close()
 
-    with open('20_for_xml.json', 'w') as file4:
+    with open(os.path.join('/var/www/html/','20_for_xml.json'), 'w') as file4:
         json.dump(existing[0:20], file4, indent=2)
-        file4.close()
 
     target_xml = rssfeed_generator('20_for_xml.json', 'News feed', 'feeds domain', ' ')
-    target_file = open('xml_newsfeed.xml', 'w')
+    target_file = open(os.path.join('/var/www/html/','xml_newsfeed.xml'), 'w')
     target_file.write(target_xml)
     target_file.close()
