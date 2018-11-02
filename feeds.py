@@ -80,7 +80,7 @@ while True:
     #newsfeed = []
     script_list = []
     #(1) collecting urls, putting them into script_list.
-    script_list = re.findall('(http.*?)\\\n', (retrive_url('/PATH/TO/sources-index.txt')).decode('utf-8'))
+    script_list = re.findall('(http.*?)\\\n', (retrive_url('http://35.235.67.46/newsfeed_list.txt')).decode('utf-8'))
     #(2) generate sum_feeds
     for newsfeed_url in script_list:
         try:# skip empty xml url
@@ -146,7 +146,7 @@ while True:
         existing = []
 
     try:
-        keywords = (retrive_url('/PATH/TO/keywords-index.txt')).decode('utf-8') #turn bytes into sting and delet 'b' from the begining.
+        keywords = (retrive_url('http://35.235.67.46/keyword_list.txt')).decode('utf-8') #turn bytes into sting and delet 'b' from the begining.
     except:pass
     else:
         if keywords.endswith('\n') is True:
